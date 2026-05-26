@@ -97,26 +97,27 @@ export function ThemeProvider({ children }) {
     r.style.setProperty('--ink', primaria);
 
     // ─── Variantes do --dark usadas dentro da SIDEBAR ───
-    // Calcula luminância da primária pra escolher texto que CONTRASTA:
-    //   - Primária ESCURA (navy, preto, marrom escuro) → texto CLARO
-    //   - Primária CLARA (rose gold, lavanda, tan)     → texto ESCURO
+    // Threshold 0.45: pra cores medium-light (tan, rose gold), usa texto PRETO.
+    // Muted é derivado DO TEXTO (não da primária) pra garantir contraste.
     const lum = luminancia(primaria);
-    const primariaEhClara = lum > 0.5;
+    const primariaEhClara = lum > 0.45;
+
+    // Cores de SHADE/LINE (variações escuras do fundo · hover/borda)
+    r.style.setProperty('--dark-shade', mistura(primaria, '#000000', 0.15));
+    r.style.setProperty('--dark-line',  mistura(primaria, '#000000', 0.25));
 
     if (primariaEhClara) {
-      // Primária clara: hover/borda ficam MAIS ESCUROS, texto fica PRETO
-      r.style.setProperty('--dark-shade', mistura(primaria, '#000000', 0.12));
-      r.style.setProperty('--dark-line',  mistura(primaria, '#000000', 0.22));
-      r.style.setProperty('--dark-label', mistura(primaria, '#000000', 0.45));
-      r.style.setProperty('--dark-text',  '#1a1612');
-      r.style.setProperty('--dark-muted', mistura(primaria, '#000000', 0.55));
+      // Primária CLARA (tan, rose gold, lavanda) → texto PRETO + muted preto-acinzentado
+      const textoBase = '#1a1612';
+      r.style.setProperty('--dark-text',  textoBase);
+      r.style.setProperty('--dark-muted', mistura(textoBase, primaria, 0.35));
+      r.style.setProperty('--dark-label', mistura(textoBase, primaria, 0.55));
     } else {
-      // Primária escura: hover/borda ficam MAIS ESCUROS ainda, texto fica BRANCO
-      r.style.setProperty('--dark-shade', mistura(primaria, '#000000', 0.15));
-      r.style.setProperty('--dark-line',  mistura(primaria, '#000000', 0.25));
-      r.style.setProperty('--dark-label', mistura(primaria, '#000000', 0.40));
-      r.style.setProperty('--dark-text',  '#faf8f5');
-      r.style.setProperty('--dark-muted', mistura(primaria, '#ffffff', 0.55));
+      // Primária ESCURA (navy, preto, marrom) → texto BRANCO + muted branco-acinzentado
+      const textoBase = '#faf8f5';
+      r.style.setProperty('--dark-text',  textoBase);
+      r.style.setProperty('--dark-muted', mistura(textoBase, primaria, 0.40));
+      r.style.setProperty('--dark-label', mistura(textoBase, primaria, 0.60));
     }
 
     // Versões "soft" derivadas (background sutil com mesma matiz)

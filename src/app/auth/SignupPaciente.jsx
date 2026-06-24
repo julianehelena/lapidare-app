@@ -17,6 +17,7 @@ export default function SignupPaciente() {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [nascimento, setNascimento] = useState('');
+  const [sexo, setSexo] = useState('feminino');
   const [senha, setSenha] = useState('');
   const [confirmaSenha, setConfirmaSenha] = useState('');
   const [objetivo, setObjetivo] = useState('Emagrecimento');
@@ -50,6 +51,7 @@ export default function SignupPaciente() {
           setNome(p.nome ?? '');
           setEmail(p.email ?? '');
           if (p.nascimento) setNascimento(p.nascimento);
+          if (p.sexo) setSexo(p.sexo);
           if (p.objetivo) setObjetivo(p.objetivo);
           if (p.tipo_plano) setTipoPlano(p.tipo_plano);
           if (p.modalidade) setModalidade(p.modalidade);
@@ -103,6 +105,7 @@ export default function SignupPaciente() {
           nutri_id: nutriId,
           nome: nome.trim(),
           nascimento: nascimento || null,
+          sexo,
           objetivo,
           tipo_plano: tipoPlano,
           modalidade,
@@ -210,7 +213,7 @@ export default function SignupPaciente() {
         <p style={P}>
           {temToken
             ? `${nutriNome} te cadastrou. Só falta criar uma senha pra entrar.`
-            : (nutriNome ? `Você foi convidada por ${nutriNome}` : 'Cadastro de paciente')}
+            : (nutriNome ? `Você foi ${sexo === 'masculino' ? 'convidado' : 'convidada'} por ${nutriNome}` : 'Cadastro de paciente')}
         </p>
 
         <form onSubmit={handleSubmit} style={{ marginTop: 16 }}>
@@ -240,9 +243,14 @@ export default function SignupPaciente() {
             <>
               <Field label="Nome completo" value={nome} onChange={setNome} required autoFocus />
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 8 }}>
-                <Field label="Email" type="email" value={email} onChange={setEmail} required />
+              <Field label="Email" type="email" value={email} onChange={setEmail} required />
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 <Field label="Data de nascimento" type="date" value={nascimento} onChange={setNascimento} />
+                <SelectField label="Sexo" value={sexo} onChange={setSexo} options={[
+                  { v: 'feminino',  l: 'Feminino' },
+                  { v: 'masculino', l: 'Masculino' },
+                ]} />
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>

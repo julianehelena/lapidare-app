@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase.js';
 import { useSession } from '../../lib/session.jsx';
 import { useTheme } from '../../lib/theme.jsx';
-import { textoDias, dataConsultaBR, diasAte, linkCall, consultaEmBreve, gerarGoogleCalendarUrl } from '../../lib/utils.js';
+import { textoDias, dataConsultaBR, diasAte, linkCall, consultaEmBreve, gerarGoogleCalendarUrl, gen } from '../../lib/utils.js';
 
 export default function Inicio() {
   const tema = useTheme();
   const nutriNome = tema.nutri_nome ?? 'Sua nutri';
   const navigate = useNavigate();
-  const { user } = useSession();
+  const { user, profile } = useSession();
   const [plano, setPlano] = useState(null);
   const [compras, setCompras] = useState(null);
   const [proximaConsulta, setProximaConsulta] = useState(null);
@@ -483,9 +483,9 @@ export default function Inicio() {
       ) : (
         <div className="card" style={{ padding: '20px 18px', textAlign: 'center' }}>
           <i className="ti ti-sparkles" style={{ fontSize: 28, color: 'var(--gold-deep)', display: 'block', marginBottom: 8 }}></i>
-          <div className="serif" style={{ fontSize: 18, marginBottom: 4 }}>Bem-vinda ao seu app</div>
+          <div className="serif" style={{ fontSize: 18, marginBottom: 4 }}>{gen(profile?.sexo, 'Bem-vindo', 'Bem-vinda')} ao seu app</div>
           <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.5 }}>
-            Sua nutricionista publicará seu plano em breve. Você será notificada!
+            Sua nutricionista publicará seu plano em breve. Você será {gen(profile?.sexo, 'notificado', 'notificada')}!
           </div>
         </div>
       )}

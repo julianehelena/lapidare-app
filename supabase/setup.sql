@@ -68,6 +68,7 @@ create table if not exists public.pacientes (
   objetivo    text,
   tipo_plano  text,
   modalidade  text,
+  sexo        text default 'feminino' check (sexo in ('feminino', 'masculino')),
   created_at  timestamptz not null default now()
 );
 create index if not exists pacientes_nutri_id_idx on public.pacientes(nutri_id);
@@ -277,6 +278,7 @@ create table if not exists public.pacientes_pendentes (
   whatsapp      text,
   cpf           text,
   nascimento    date,
+  sexo          text default 'feminino' check (sexo in ('feminino', 'masculino')),
   objetivo      text,
   tipo_plano    text,
   modalidade    text,
@@ -1217,16 +1219,17 @@ create policy ebooks_storage_delete on storage.objects for delete using (
 
 
 -- 10.7 Função pública pra buscar pendente por token ------------
+drop function if exists public.buscar_pendente_por_token(uuid);
 create or replace function public.buscar_pendente_por_token(p_token uuid)
 returns table(
-  nome text, email text, nascimento date,
+  nome text, email text, nascimento date, sexo text,
   objetivo text, tipo_plano text, modalidade text,
   nutri_id uuid, nutri_nome text, status text
 )
 language sql security definer set search_path = public
 as $$
-  select pp.nome, pp.email, pp.nascimento, pp.objetivo,
-    pp.tipo_plano, pp.modalidade, pp.nutri_id,
+  select pp.nome, pp.email, pp.nascimento, coalesce(pp.sexo, 'feminino') as sexo,
+    pp.objetivo, pp.tipo_plano, pp.modalidade, pp.nutri_id,
     n.nome as nutri_nome, pp.status
   from public.pacientes_pendentes pp
   join public.nutris n on n.id = pp.nutri_id
@@ -1262,7 +1265,7 @@ begin
       where nutri_id = v_nutri_id and lower(email) = lower(new.email) limit 1;
 
       if found then
-        insert into public.pacientes (id, nutri_id, nome, email, objetivo, tipo_plano, modalidade, nascimento)
+        insert into public.pacientes (id, nutri_id, nome, email, objetivo, tipo_plano, modalidade, nascimento, sexo)
         values (
           new.id, v_nutri_id,
           coalesce(new.raw_user_meta_data ->> 'nome',       v_pendente.nome,       new.email),
@@ -1270,11 +1273,12 @@ begin
           coalesce(new.raw_user_meta_data ->> 'objetivo',   v_pendente.objetivo),
           coalesce(new.raw_user_meta_data ->> 'tipo_plano', v_pendente.tipo_plano),
           coalesce(new.raw_user_meta_data ->> 'modalidade', v_pendente.modalidade),
-          coalesce((new.raw_user_meta_data ->> 'nascimento')::date, v_pendente.nascimento)
+          coalesce((new.raw_user_meta_data ->> 'nascimento')::date, v_pendente.nascimento),
+          coalesce(new.raw_user_meta_data ->> 'sexo',       v_pendente.sexo,       'feminino')
         ) on conflict (id) do nothing;
         update public.pacientes_pendentes set status = 'ativado' where id = v_pendente.id;
       else
-        insert into public.pacientes (id, nutri_id, nome, email, objetivo, tipo_plano, modalidade, nascimento)
+        insert into public.pacientes (id, nutri_id, nome, email, objetivo, tipo_plano, modalidade, nascimento, sexo)
         values (
           new.id, v_nutri_id,
           coalesce(new.raw_user_meta_data ->> 'nome', new.email),
@@ -1282,7 +1286,8 @@ begin
           new.raw_user_meta_data ->> 'objetivo',
           new.raw_user_meta_data ->> 'tipo_plano',
           new.raw_user_meta_data ->> 'modalidade',
-          (new.raw_user_meta_data ->> 'nascimento')::date
+          (new.raw_user_meta_data ->> 'nascimento')::date,
+          coalesce(new.raw_user_meta_data ->> 'sexo', 'feminino')
         ) on conflict (id) do nothing;
       end if;
 

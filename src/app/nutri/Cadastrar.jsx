@@ -11,6 +11,10 @@ const PLANOS    = [
   { v: 'acompanhamento', l: 'Acompanhamento' },
 ];
 const MODALIDADES = ['Presencial', 'Online', 'Híbrido'];
+const SEXOS = [
+  { v: 'feminino',  l: 'Feminino' },
+  { v: 'masculino', l: 'Masculino' },
+];
 
 export default function Cadastrar() {
   const { user } = useSession();
@@ -18,6 +22,7 @@ export default function Cadastrar() {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [nascimento, setNascimento] = useState('');
+  const [sexo, setSexo] = useState('feminino');
   const [objetivo, setObjetivo] = useState('Emagrecimento');
   const [tipoPlano, setTipoPlano] = useState('trimestral');
   const [modalidade, setModalidade] = useState('Online');
@@ -41,7 +46,7 @@ export default function Cadastrar() {
   useEffect(() => { carregarPendentes(); }, [user]);
 
   function resetForm() {
-    setNome(''); setEmail(''); setNascimento('');
+    setNome(''); setEmail(''); setNascimento(''); setSexo('feminino');
     setObjetivo('Emagrecimento'); setTipoPlano('trimestral');
     setModalidade('Online'); setObs('');
   }
@@ -59,6 +64,7 @@ export default function Cadastrar() {
       nome: nome.trim(),
       email: email.trim().toLowerCase(),
       nascimento: nascimento || null,
+      sexo,
       objetivo,
       tipo_plano: tipoPlano,
       modalidade,
@@ -118,9 +124,10 @@ export default function Cadastrar() {
           <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 12 }}>Novo cadastro</div>
 
           <Field label="Nome completo *" value={nome} onChange={setNome} required autoFocus />
-          <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 10 }}>
-            <Field label="Email *" type="email" value={email} onChange={setEmail} required />
+          <Field label="Email *" type="email" value={email} onChange={setEmail} required />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <Field label="Data de nascimento" type="date" value={nascimento} onChange={setNascimento} />
+            <SelectField label="Sexo" value={sexo} onChange={setSexo} options={SEXOS} />
           </div>
 
           <SelectField label="Objetivo" value={objetivo} onChange={setObjetivo} options={OBJETIVOS} />

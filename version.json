@@ -1,5 +1,5 @@
 {
-  "version": "1.10.3",
+  "version": "1.11.0",
   "released_at": "2026-06-09",
-  "notes": "Fix crítico: setup.sql falhava ('relation listas_compras does not exist') em instalação nova porque o ALTER TABLE ficava antes do CREATE TABLE"
+  "notes": "Campo Sexo no cadastro da paciente — app agora usa concordância correta (Bem-vinda/Bem-vindo). Útil pra nutris que atendem pacientes homens também."
 }

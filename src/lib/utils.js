@@ -67,6 +67,22 @@ export function dataConsultaBR(iso) {
   return `${cap}, ${data} às ${hora}`;
 }
 
+/**
+ * Helper de concordância de gênero — retorna `masc` se sexo for masculino,
+ * `fem` em qualquer outro caso (default: feminino).
+ *
+ * Uso: gen(profile?.sexo, 'Bem-vindo', 'Bem-vinda')
+ *      gen(paciente.sexo, 'O paciente está', 'A paciente está')
+ *
+ * Por que o default cai pra feminino: a maioria das nutris atende mulheres,
+ * e historicamente o app foi escrito no feminino. Pacientes antigos sem
+ * campo "sexo" vão continuar vendo o feminino até a nutri atualizar.
+ */
+export function gen(sexo, masc, fem) {
+  return sexo === 'masculino' ? masc : fem;
+}
+
+
 // ─── Validadores de JSON (Skill 6 e Skill 7) ───
 
 /**

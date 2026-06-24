@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '../../lib/supabase.js';
 import { useSession } from '../../lib/session.jsx';
-import { dataBR, indexarSubstituicoes } from '../../lib/utils.js';
+import { dataBR, indexarSubstituicoes, gen } from '../../lib/utils.js';
 
 /**
  * Renderiza uma substituição com segurança — aceita string OU objeto.
@@ -24,7 +24,7 @@ function formatarSub(s) {
 }
 
 export default function Plano() {
-  const { user } = useSession();
+  const { user, profile } = useSession();
   const [plano, setPlano] = useState(undefined); // undefined=loading, null=vazio
   const [validade, setValidade] = useState(null);
   const [pdfPlano, setPdfPlano] = useState(null);          // URL do PDF do plano
@@ -79,7 +79,7 @@ export default function Plano() {
         <i className="ti ti-salad empty-icon" aria-hidden="true"></i>
         <div className="empty-title">Plano não publicado ainda</div>
         <div className="empty-sub">
-          Sua nutricionista está preparando seu plano personalizado. Você será notificada quando estiver pronto.
+          Sua nutricionista está preparando seu plano personalizado. Você será {gen(profile?.sexo, 'notificado', 'notificada')} quando estiver pronto.
         </div>
       </div>
     );

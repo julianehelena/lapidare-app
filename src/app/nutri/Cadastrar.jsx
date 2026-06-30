@@ -16,15 +16,22 @@ const SEXOS = [
 
 export default function Cadastrar() {
   const { user, profile } = useSession();
+  const [servicosAtivos, setServicosAtivos] = useState([]);
 
   // Listas customizadas pela nutri (caem pro default se não tiver lista
   // configurada ainda, ou se o Supabase dela não foi atualizado).
   const objetivosCustom = Array.isArray(profile?.objetivos) && profile.objetivos.length > 0
     ? profile.objetivos
     : OBJETIVOS_DEFAULT;
-  const tiposPlanoCustom = Array.isArray(profile?.tipos_plano) && profile.tipos_plano.length > 0
-    ? profile.tipos_plano
-    : TIPOS_PLANO_DEFAULT;
+  // Tipos de plano: prioriza serviços ATIVOS cadastrados em /nutri/servicos
+  // (era o que a nutri esperava — "se cadastrei serviços, devem aparecer aqui").
+  // Se ela não tem serviços ainda, cai pra lista custom da Personalização,
+  // depois pros defaults.
+  const tiposPlanoCustom = servicosAtivos.length > 0
+    ? servicosAtivos.map(s => s.nome)
+    : (Array.isArray(profile?.tipos_plano) && profile.tipos_plano.length > 0
+        ? profile.tipos_plano
+        : TIPOS_PLANO_DEFAULT);
   const modalidadesCustom = Array.isArray(profile?.modalidades) && profile.modalidades.length > 0
     ? profile.modalidades
     : MODALIDADES_DEFAULT;
@@ -54,6 +61,23 @@ export default function Cadastrar() {
     setPendentes(data ?? []);
   }
   useEffect(() => { carregarPendentes(); }, [user]);
+
+  // Carrega serviços ativos pra popular o select "Tipo de plano".
+  // Tabela "servicos" existe desde fases antigas (não precisa SQL novo).
+  useEffect(() => {
+    if (!user) return;
+    let active = true;
+    (async () => {
+      const { data } = await supabase
+        .from('servicos')
+        .select('nome, ativo')
+        .eq('nutri_id', user.id)
+        .eq('ativo', true)
+        .order('ticket', { ascending: false });
+      if (active) setServicosAtivos(data ?? []);
+    })();
+    return () => { active = false; };
+  }, [user]);
 
   // Quando carregar profile (ou nutri trocar lista no Personalização),
   // garante que o "Objetivo" selecionado existe na lista — senão usa o 1º.

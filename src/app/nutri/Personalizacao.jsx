@@ -538,12 +538,21 @@ export default function Personalizacao() {
         <div style={{ height: 14 }} />
 
         <EditorListaPersonalizacao
-          label="Tipos de plano"
+          label="Tipos de plano (fallback)"
           placeholder="Ex: Trimestral"
           textoAdd="Adicionar tipo de plano"
           itens={form.tipos_plano ?? []}
           onChange={novos => setForm(f => ({ ...f, tipos_plano: novos }))}
         />
+        <div style={{
+          fontSize: 11, color: 'var(--text3)', marginTop: 6, lineHeight: 1.5,
+          padding: '6px 10px', background: 'var(--bg2)', borderRadius: 6,
+        }}>
+          <i className="ti ti-info-circle" style={{ marginRight: 4 }} aria-hidden="true"></i>
+          Se você cadastrar <strong>Serviços ativos</strong> em <em>Meus serviços</em>,
+          eles aparecem aqui automaticamente no cadastro de paciente. Esta lista de
+          fallback só é usada quando não há serviços cadastrados.
+        </div>
 
         <div style={{ height: 14 }} />
 

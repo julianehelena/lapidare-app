@@ -1,5 +1,5 @@
 {
-  "version": "1.14.2",
+  "version": "1.14.3",
   "released_at": "2026-06-30",
-  "notes": "Nutri pode publicar Plano/Substituições/Compras com JSON OU só PDF (não precisa mais dos dois). Paciente vê tela amigável quando vier só PDF."
+  "notes": "'Tipo de plano' no cadastro de paciente agora puxa automaticamente os Serviços ATIVOS cadastrados em 'Meus serviços'. Resolvido: confusão de várias nutris que cadastravam serviços esperando que aparecessem no cadastro."
 }

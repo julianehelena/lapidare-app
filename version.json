@@ -1,5 +1,5 @@
 {
-  "version": "1.14.1",
+  "version": "1.14.2",
   "released_at": "2026-06-30",
-  "notes": "Tipo de plano e Modalidade agora também são customizáveis pela nutri (mesma seção 'Opções de cadastro' da Personalização). Útil pra quem só atende online ou tem nomes próprios pros planos."
+  "notes": "Nutri pode publicar Plano/Substituições/Compras com JSON OU só PDF (não precisa mais dos dois). Paciente vê tela amigável quando vier só PDF."
 }

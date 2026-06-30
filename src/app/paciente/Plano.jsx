@@ -85,6 +85,52 @@ export default function Plano() {
     );
   }
 
+  // Plano foi publicado SÓ como PDF (sem JSON estruturado).
+  // Mostra tela amigável só com botão de baixar.
+  const somentePdf = plano.somente_pdf === true || !Array.isArray(plano.refeicoes);
+  if (somentePdf && pdfPlano) {
+    return (
+      <div style={{ padding: '24px 16px', textAlign: 'center' }}>
+        <i className="ti ti-file-text" style={{ fontSize: 40, color: 'var(--gold-deep)', display: 'block', marginBottom: 12 }}></i>
+        <div className="serif" style={{ fontSize: 20, marginBottom: 6 }}>Seu plano alimentar</div>
+        <div style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 18, lineHeight: 1.5 }}>
+          Sua nutricionista enviou o plano em PDF. Toque pra baixar e visualizar.
+        </div>
+        <a href={pdfPlano} target="_blank" rel="noopener noreferrer"
+           style={{
+             display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+             padding: '12px 24px', borderRadius: 10,
+             background: 'var(--gold-bg, #fff7e0)', color: 'var(--gold-deep, #5a4400)',
+             border: '1px solid var(--gold, #c9a86a)',
+             fontSize: 14, fontWeight: 500, textDecoration: 'none',
+           }}>
+          <i className="ti ti-file-download" style={{ fontSize: 18 }} aria-hidden="true"></i>
+          Baixar PDF do plano
+        </a>
+        {pdfSubs && (
+          <div style={{ marginTop: 12 }}>
+            <a href={pdfSubs} target="_blank" rel="noopener noreferrer"
+               style={{
+                 display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                 padding: '8px 18px', borderRadius: 10,
+                 background: 'var(--bg2)', color: 'var(--text2)',
+                 border: '0.5px solid var(--border)',
+                 fontSize: 13, fontWeight: 500, textDecoration: 'none',
+               }}>
+              <i className="ti ti-file-download" style={{ fontSize: 14 }} aria-hidden="true"></i>
+              Baixar PDF das substituições
+            </a>
+          </div>
+        )}
+        {validade && (
+          <div style={{ marginTop: 16, fontSize: 11, color: 'var(--muted)' }}>
+            Válido até {dataBR(validade)}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   const totalFeitos = plano.refeicoes?.filter(r => r.feita).length ?? 0;
   const total = plano.refeicoes?.length ?? 0;
 

@@ -82,6 +82,31 @@ export default function Compras() {
     );
   }
 
+  // Lista publicada SÓ como PDF (sem JSON estruturado) — mostra tela amigável.
+  const somentePdf = compras.somente_pdf === true || !Array.isArray(compras.lista);
+  if (somentePdf && pdfUrl) {
+    return (
+      <div style={{ padding: '24px 16px', textAlign: 'center' }}>
+        <i className="ti ti-shopping-cart" style={{ fontSize: 40, color: 'var(--gold-deep)', display: 'block', marginBottom: 12 }}></i>
+        <div className="serif" style={{ fontSize: 20, marginBottom: 6 }}>Sua lista de compras</div>
+        <div style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 18, lineHeight: 1.5 }}>
+          Sua nutricionista enviou a lista em PDF. Toque pra baixar.
+        </div>
+        <a href={pdfUrl} target="_blank" rel="noopener noreferrer"
+           style={{
+             display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+             padding: '12px 24px', borderRadius: 10,
+             background: 'var(--gold-bg, #fff7e0)', color: 'var(--gold-deep, #5a4400)',
+             border: '1px solid var(--gold, #c9a86a)',
+             fontSize: 14, fontWeight: 500, textDecoration: 'none',
+           }}>
+          <i className="ti ti-file-download" style={{ fontSize: 18 }} aria-hidden="true"></i>
+          Baixar PDF da lista
+        </a>
+      </div>
+    );
+  }
+
   const totalItens = comprasLimpas.lista?.reduce((a, c) => a + (c.itens?.length ?? 0), 0) ?? 0;
   const totalMarcados = Object.values(marcados).filter(Boolean).length;
 

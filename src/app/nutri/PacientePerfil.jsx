@@ -725,12 +725,21 @@ function PublicarPlano({ pacienteId, nutriId }) {
 
   async function publicar() {
     setFeedback(null);
-    let dados;
-    try { dados = JSON.parse(json); }
-    catch (e) { return setFeedback({ tipo: 'erro', msg: 'JSON inválido: ' + e.message }); }
+    // Permite publicar com JSON OU só PDF (pelo menos um dos dois).
+    // Se a nutri quer mandar só o PDF (vindo do Shaped/avaliação externa)
+    // sem montar o JSON estruturado, salva com dados vazios.
+    const temJson = json.trim().length > 0;
+    if (!temJson && !pdfFile) {
+      return setFeedback({ tipo: 'erro', msg: 'Cole o JSON do plano OU anexe um PDF (pelo menos um dos dois).' });
+    }
 
-    const v = validarPlano(dados);
-    if (!v.ok) return setFeedback({ tipo: 'erro', msg: v.erro });
+    let dados = { somente_pdf: true };
+    if (temJson) {
+      try { dados = JSON.parse(json); }
+      catch (e) { return setFeedback({ tipo: 'erro', msg: 'JSON inválido: ' + e.message }); }
+      const v = validarPlano(dados);
+      if (!v.ok) return setFeedback({ tipo: 'erro', msg: v.erro });
+    }
 
     setBusy(true);
     let pdfUrl = null;
@@ -779,11 +788,11 @@ function PublicarPlano({ pacienteId, nutriId }) {
         <div className="card-header">
           <div>
             <div className="card-title">Publicar novo plano alimentar</div>
-            <div className="card-sub">Cole o JSON gerado pela sua Skill 6 (plano + macros + refeições)</div>
+            <div className="card-sub">Cole o JSON da Skill 6 OU anexe um PDF — pelo menos um dos dois</div>
           </div>
         </div>
         <div className="card-body">
-          <label className="field-label">JSON do plano</label>
+          <label className="field-label">JSON do plano (opcional se anexar PDF)</label>
           <textarea
             value={json}
             onChange={e => setJson(e.target.value)}
@@ -808,7 +817,7 @@ function PublicarPlano({ pacienteId, nutriId }) {
               <input type="date" value={validade} onChange={e => setValidade(e.target.value)} />
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-              <button className="btn" onClick={publicar} disabled={busy || !json.trim()}>
+              <button className="btn" onClick={publicar} disabled={busy || (!json.trim() && !pdfFile)}>
                 <i className="ti ti-send" aria-hidden="true"></i> {busy ? 'Publicando...' : 'Publicar plano'}
               </button>
             </div>
@@ -876,12 +885,18 @@ function PublicarSubstituicoes({ pacienteId, nutriId }) {
 
   async function publicar() {
     setFeedback(null);
-    let dados;
-    try { dados = JSON.parse(json); }
-    catch (e) { return setFeedback({ tipo: 'erro', msg: 'JSON inválido: ' + e.message }); }
+    const temJson = json.trim().length > 0;
+    if (!temJson && !pdfFile) {
+      return setFeedback({ tipo: 'erro', msg: 'Cole o JSON OU anexe um PDF (pelo menos um dos dois).' });
+    }
 
-    const v = validarSubstituicoes(dados);
-    if (!v.ok) return setFeedback({ tipo: 'erro', msg: v.erro });
+    let dados = [];
+    if (temJson) {
+      try { dados = JSON.parse(json); }
+      catch (e) { return setFeedback({ tipo: 'erro', msg: 'JSON inválido: ' + e.message }); }
+      const v = validarSubstituicoes(dados);
+      if (!v.ok) return setFeedback({ tipo: 'erro', msg: v.erro });
+    }
 
     setBusy(true);
     let pdfUrl = null;
@@ -907,7 +922,10 @@ function PublicarSubstituicoes({ pacienteId, nutriId }) {
     const aviso = omitidos.length
       ? ` ATENÇÃO: PDF não foi salvo. Rode o SQL: github.com/danielasoares-rd/lapidare-app/blob/main/supabase/delta-v1.10.0.sql`
       : (pdfUrl ? ' PDF anexado.' : '');
-    setFeedback({ tipo: omitidos.length ? 'erro' : 'ok', msg: `Substituições publicadas!${aviso} ${dados.length} alimentos com opções de troca.` });
+    const detalhe = Array.isArray(dados) && dados.length > 0
+      ? ` ${dados.length} alimentos com opções de troca.`
+      : '';
+    setFeedback({ tipo: omitidos.length ? 'erro' : 'ok', msg: `Substituições publicadas!${aviso}${detalhe}` });
     setJson('');
     setPdfFile(null);
     carregar();
@@ -929,8 +947,8 @@ function PublicarSubstituicoes({ pacienteId, nutriId }) {
           <div>
             <div className="card-title">Publicar lista de substituições</div>
             <div className="card-sub">
-              Cole o JSON com substituições por alimento. A paciente vai ver as opções
-              ao tocar em "Ver substituições" em cada alimento do plano.
+              Cole o JSON OU anexe um PDF — pelo menos um dos dois. Com JSON,
+              a paciente vê substituições ao tocar nos alimentos do plano.
             </div>
           </div>
         </div>
@@ -955,7 +973,7 @@ function PublicarSubstituicoes({ pacienteId, nutriId }) {
           />
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
-            <button className="btn" onClick={publicar} disabled={busy || !json.trim()}>
+            <button className="btn" onClick={publicar} disabled={busy || (!json.trim() && !pdfFile)}>
               <i className="ti ti-send" aria-hidden="true"></i> {busy ? 'Publicando...' : 'Publicar substituições'}
             </button>
           </div>
@@ -1017,12 +1035,18 @@ function PublicarLista({ pacienteId, nutriId }) {
 
   async function publicar() {
     setFeedback(null);
-    let dados;
-    try { dados = JSON.parse(json); }
-    catch (e) { return setFeedback({ tipo: 'erro', msg: 'JSON inválido: ' + e.message }); }
+    const temJson = json.trim().length > 0;
+    if (!temJson && !pdfFile) {
+      return setFeedback({ tipo: 'erro', msg: 'Cole o JSON OU anexe um PDF (pelo menos um dos dois).' });
+    }
 
-    const v = validarLista(dados);
-    if (!v.ok) return setFeedback({ tipo: 'erro', msg: v.erro });
+    let dados = { somente_pdf: true };
+    if (temJson) {
+      try { dados = JSON.parse(json); }
+      catch (e) { return setFeedback({ tipo: 'erro', msg: 'JSON inválido: ' + e.message }); }
+      const v = validarLista(dados);
+      if (!v.ok) return setFeedback({ tipo: 'erro', msg: v.erro });
+    }
 
     setBusy(true);
     let pdfUrl = null;
@@ -1069,7 +1093,7 @@ function PublicarLista({ pacienteId, nutriId }) {
         <div className="card-header">
           <div>
             <div className="card-title">Publicar nova lista de compras</div>
-            <div className="card-sub">Cole o JSON gerado pela sua Skill 7 (categorias + itens)</div>
+            <div className="card-sub">Cole o JSON da Skill 7 OU anexe um PDF — pelo menos um dos dois</div>
           </div>
         </div>
         <div className="card-body">
@@ -1093,7 +1117,7 @@ function PublicarLista({ pacienteId, nutriId }) {
           />
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
-            <button className="btn" onClick={publicar} disabled={busy || !json.trim()}>
+            <button className="btn" onClick={publicar} disabled={busy || (!json.trim() && !pdfFile)}>
               <i className="ti ti-send" aria-hidden="true"></i> {busy ? 'Publicando...' : 'Publicar lista'}
             </button>
           </div>
